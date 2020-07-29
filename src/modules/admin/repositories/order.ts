@@ -12,10 +12,12 @@ export class OrderRepository {
     currentUser: ICurrentUser,
     transaction?: Transaction
   ): Promise<Page<Order>> {
-    let query = Order.query(transaction)
+    let userIsAdmin = currentUser.roles.includes('sysAdmin');
+    let queryBase = Order.query(transaction)
       .select('*')
-      .where({ userId: currentUser.id })
       .page(params.page, params.pageSize);
+
+    let query = userIsAdmin ? queryBase : queryBase.where({ userId: currentUser.id });
 
     if (params.orderBy) {
       query = query.orderBy('description', params.orderDirection);
