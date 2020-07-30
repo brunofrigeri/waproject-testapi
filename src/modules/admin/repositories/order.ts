@@ -4,6 +4,7 @@ import { Order } from 'modules/database/models/order';
 import { Page, Transaction } from 'objection';
 import { IPaginationParams } from 'modules/common/interfaces/pagination';
 import { ICurrentUser } from 'modules/common/interfaces/currentUser';
+import { User } from 'modules/database/models/user';
 
 @Injectable()
 export class OrderRepository {
@@ -17,7 +18,12 @@ export class OrderRepository {
       .select('*')
       .page(params.page, params.pageSize);
 
-    let query = userIsAdmin ? queryBase : queryBase.where({ userId: currentUser.id });
+    let query = userIsAdmin
+      ? Order.query(transaction)
+          .innerJoin('User', 'User.id', 'Order.userId')
+          .select('Order.*', 'User.firstName', 'User.lastName', 'User.roles')
+          .page(params.page, params.pageSize)
+      : queryBase.where({ userId: currentUser.id });
 
     if (params.orderBy) {
       query = query.orderBy('description', params.orderDirection);
