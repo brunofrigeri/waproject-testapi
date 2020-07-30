@@ -26,7 +26,7 @@ export class OrderRepository {
       : queryBase.where({ userId: currentUser.id });
 
     if (params.orderBy) {
-      query = query.orderBy('description', params.orderDirection);
+      query = query.orderBy(params.orderBy, params.orderDirection);
     }
 
     if (params.term) {
